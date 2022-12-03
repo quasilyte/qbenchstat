@@ -1,2 +1,3 @@
-# qbenchstat
-My personal, slightly improved version of benchstat utility
+## overview
+
+My personal, slightly improved version of benchstat utility.
