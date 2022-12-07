@@ -4,7 +4,7 @@ My personal, slightly improved version of [benchstat](https://pkg.go.dev/golang.
 
 ## Differences From Benchstat
 
-Lets take two benchmarks data ([old](https://gist.github.com/quasilyte/809f7093de7d60161af150c2a2d3c438) and [new]((https://gist.github.com/quasilyte/ee37f1f6dbad06c00deb8bba6dce1a9f))) and compare them using benchstat:
+Lets take two benchmarks data ([old](https://gist.github.com/quasilyte/809f7093de7d60161af150c2a2d3c438) and [new](https://gist.github.com/quasilyte/ee37f1f6dbad06c00deb8bba6dce1a9f)) and compare them using benchstat:
 
 ![](_docs/benchstat_old.png)
 
