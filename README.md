@@ -42,3 +42,9 @@ Usage of ./bin/qbenchstat:
 The new flags:
 
 * `no-color`
+
+## Installation
+
+```bash
+$ go install github.com/quasilyte/qbenchstat/cmd/qbenchstat
+```
