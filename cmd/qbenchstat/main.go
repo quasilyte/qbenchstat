@@ -12,6 +12,37 @@ import (
 	"golang.org/x/perf/benchstat"
 )
 
+type StringSet map[string]struct{}
+
+func (u StringSet) Set(value string) error {
+	u[value] = struct{}{}
+	return nil
+}
+
+func (u StringSet) String() string {
+	if len(u) == 0 {
+		return "[]"
+	}
+	var buf strings.Builder
+	buf.Grow(len(u) * 10)
+	first := true
+	buf.WriteByte('[')
+	for t := range u {
+		if first {
+			first = false
+		} else {
+			buf.WriteByte(',')
+		}
+		buf.WriteString(t)
+	}
+	buf.WriteByte(']')
+	return buf.String()
+}
+
+func (u *StringSet) Type() string {
+	return "[]string"
+}
+
 func main() {
 	log.SetFlags(0)
 	if err := runBenchstat(); err != nil {
@@ -26,6 +57,8 @@ func runBenchstat() error {
 	flagSplit := flag.String("split", "pkg,goos,goarch", "split benchmarks by `labels`")
 	flagSort := flag.String("sort", "none", "sort by `order`: [-]delta, [-]name, none")
 	noColor := flag.Bool("no-color", false, "disable the colored output")
+	increasing := make(StringSet)
+	flag.Var(increasing, "increasing", "metrics where increasing is better")
 	flag.Parse()
 
 	colorsEnabled := !*noColor
@@ -94,7 +127,7 @@ func runBenchstat() error {
 	tables := c.Tables()
 	fixBenchstatTables(tables)
 	if colorsEnabled {
-		colorizeBenchstatTables(tables)
+		colorizeBenchstatTables(tables, increasing)
 	}
 	var buf bytes.Buffer
 	benchstat.FormatText(&buf, tables)
@@ -164,8 +197,9 @@ func isEpsilonDelta(metrics []*benchstat.Metrics) bool {
 	return math.Abs(metrics[0].Mean-metrics[1].Mean) <= eps
 }
 
-func colorizeBenchstatTables(tables []*benchstat.Table) {
+func colorizeBenchstatTables(tables []*benchstat.Table, increasing StringSet) {
 	for _, table := range tables {
+		_, isIncreasingIsBetter := increasing[table.Metric]
 		for _, row := range table.Rows {
 			if isEpsilonDelta(row.Metrics) {
 				row.Delta = yellowColorize("~")
@@ -182,9 +216,17 @@ func colorizeBenchstatTables(tables []*benchstat.Table) {
 				continue
 			}
 			if strings.HasPrefix(row.Delta, "+") {
-				row.Delta = redColorize(row.Delta)
+				if isIncreasingIsBetter {
+					row.Delta = greenColorize(row.Delta)
+				} else {
+					row.Delta = redColorize(row.Delta)
+				}
 			} else if strings.HasPrefix(row.Delta, "-") {
-				row.Delta = greenColorize(row.Delta)
+				if isIncreasingIsBetter {
+					row.Delta = redColorize(row.Delta)
+				} else {
+					row.Delta = greenColorize(row.Delta)
+				}
 			} else {
 				row.Delta = yellowColorize(row.Delta)
 			}
