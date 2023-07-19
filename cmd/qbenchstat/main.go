@@ -181,11 +181,12 @@ func colorizeBenchstatTables(tables []*benchstat.Table) {
 				row.Delta = yellowColorize("~")
 				continue
 			}
-			if strings.HasPrefix(row.Delta, "+") {
-				row.Delta = redColorize(row.Delta)
-			} else if strings.HasPrefix(row.Delta, "-") {
+			switch row.Change {
+			case 1:
 				row.Delta = greenColorize(row.Delta)
-			} else {
+			case -1:
+				row.Delta = redColorize(row.Delta)
+			default:
 				row.Delta = yellowColorize(row.Delta)
 			}
 		}
